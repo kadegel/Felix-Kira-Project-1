@@ -1,5 +1,5 @@
 # Felix-Kira-Project-1
 
-Team members and assignmenets:
-Kira Degelsmith - 
-Felix Lopez - 
+## Team members and assignments:  
+Kira Degelsmith - GHU  
+Felix Lopez - PDL  
