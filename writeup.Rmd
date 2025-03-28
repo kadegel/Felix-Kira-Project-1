@@ -43,13 +43,13 @@ The World Health Organization has recently employed a new data science initiativ
 Your and your partner's role is to play a data scientist from one of these two entities.
 
 ## Data
-> [2019 Novel Coronavirus COVID-19 (2019-nCoV) Data Repository by John Hopkins CSSE](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)
+> [2019 Novel Coronavirus COVID-19 (2019-nCoV) Data Repository by John Hopkins CSSE](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)  
 
-Data for 2019 Novel Coronavirus is operated by the John Hopkins University Center for Systems Science and Engineering (JHU CSSE).
-Data includes daily time series CSV summary tables, including confirmations, recoveries, and deaths. 
-Country/region are countries/regions hat conform to World Health Organization (WHO).
-Lat and Long refer to coordinates references for the user. 
-Date fields are stored in MM/DD/YYYY format.
+```{r df_vars}
+# Create data frames for deaths and confirmations from csv files
+deaths_df <- readr::read_csv("time_series_covid19_deaths_global.csv")
+confirmations_df <- readr::read_csv("time_series_covid19_confirmed_global.csv")
+```
 
 ## Project Objectives
 
