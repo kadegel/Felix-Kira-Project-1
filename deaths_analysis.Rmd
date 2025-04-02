@@ -1,0 +1,88 @@
+---
+title: "PDL project members provide time series data counting COVID-19 related confirmations."
+output: html_document
+---
+---
+```{r load-deaths, echo=FALSE}
+# Load necessary packages
+library(readr)
+library(dplyr)
+
+# Read the data
+confirmations_df <- readr::read_csv("time_series_covid19_confirmed_global.csv")
+deaths_df <- readr::read_csv("time_series_covid19_deaths_global.csv")
+
+```
+---
+___Objective 1___
+---
+
+This code determines the region with the highest confirmed COVID-19 cases and deaths on the first recorded date. It then compares these regions to identify a possible origin. If they match, it prints the origin; otherwise, it states that the origin is uncertain.
+```
+
+```{r}
+
+first_date <- colnames(confirmations_df)[5]  # "1/22/20"
+
+# Find the region with the most confirmed cases on the first date
+max_confirmations <- max(confirmations_df[[first_date]], na.rm = TRUE)
+origin_confirm <- confirmations_df %>%
+  filter(!!sym(first_date) == max_confirmations) %>%
+  select(`Province/State`, `Country/Region`)
+
+# Find the region with the most deaths on the first date
+max_deaths <- max(deaths_df[[first_date]], na.rm = TRUE)
+origin_death <- deaths_df %>%
+  filter(!!sym(first_date) == max_deaths) %>%
+  select(`Province/State`, `Country/Region`)
+
+# Convert to character strings for better comparison
+origin_confirm_str <- paste(origin_confirm$`Province/State`, origin_confirm$`Country/Region`, sep=", ")
+origin_death_str <- paste(origin_death$`Province/State`, origin_death$`Country/Region`, sep=", ")
+
+# Check if both values match using an if statement
+if (all(origin_confirm_str %in% origin_death_str)) {
+  print(paste("The origin of COVID-19 is:", origin_confirm_str))
+} else {
+  print("The origin is uncertain as the highest confirmations and deaths do not match exactly.")
+}
+
+# Print results
+print(origin_confirm)
+print(origin_death)
+```
+
+___Objective 2___
+
+The code identifies the most recent area to report its first confirmed COVID-19 case by iterating through the dataset. It checks each region's time-series data to find the earliest date when cases exceed zero. It then compares these dates to determine the latest first-case occurrence across all regions and prints the result.
+```
+```{r}
+# Extract only the date columns (starting from the 5th column)
+date_columns <- colnames(confirmations_df)[5:ncol(confirmations_df)]
+
+# Initialize variables to track the most recent first case
+latest_first_case_date <- as.Date("2020-01-01", format="%Y-%m-%d")
+latest_region <- ""
+
+# Loop through each row to find the first confirmed case
+for (i in 1:nrow(confirmations_df)) {
+  region_name <- paste(confirmations_df$`Province/State`[i], confirmations_df$`Country/Region`[i], sep=", ")
+
+  # Find the first date where cases > 0
+  first_case_index <- which(confirmations_df[i, date_columns] > 0)[1]
+
+  if (!is.na(first_case_index)) {
+    first_case_date <- as.Date(date_columns[first_case_index], format="%m/%d/%y")
+
+    # Check if this is the most recent first case
+    if (first_case_date > latest_first_case_date) {
+      latest_first_case_date <- first_case_date
+      latest_region <- region_name
+    }
+  }
+}
+
+# Print the result
+print(paste("The most recent area to have its first confirmed case is:", latest_region, "on", latest_first_case_date))
+```
+
