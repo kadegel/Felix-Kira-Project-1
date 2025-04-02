@@ -25,12 +25,12 @@ header-includes:
 ```{r setup, include = FALSE}
 
 #### Load necessary packages ####
-packages <- c("kableExtra", "readr", "geosphere")
+packages <- c("knitr", "readr", "geosphere")
 
 install_me <- packages[!(packages %in% installed.packages()[, "Package"])]
 if (length(install_me)) install.packages(install_me)
 
-library(kableExtra)
+library(knitr)
 library(readr)
 library(geosphere)
 ```
@@ -158,8 +158,41 @@ print(paste0("The global risk score is currently ", round(global_risk,2), "%. ",
 - One limitation from calculating risk scores is that the risk score assumes that valid and accurate data has been reported. An example of this limitation is evident in the code chunk above. The highest risk score without any adjustment came out to be 600% in North Korea, since the most recent North Korean data shows 6 deaths but only 1 confirmed case. Since the risk score is over 100%, it is possible to decide that the data for North Korea is erroneous in some way, so to find the highest risk rate, you go to the highest rate that is less than or equal to 100%. This example with North Korea made it obvious to see that there was something going wrong with the data, but if the outcome didn't surpass 100%, it would be harder to see an error similar to this. Incorrect, incomplete, or otherwise erroneous data can cause problems when calculating metrics like risk scores, and it is important to take that into account when running analyses on data sets.
 
 ### Objective 5
-```{r ob5}
+```{r ob5, results='axis'}
+# Create a function to create a new data frame with top 5 countries and sums for 
+# deaths and confirmations
+top_5_country_sums <- function(df)
+{
+  # Find all unique countries from the data set
+  countries <- unique(df[, "Country/Region", drop=TRUE])
+  
+  # Create empty list to hold sum for each country
+  sum_list <- list()
+  
+  # For loop to add death sum for each country to the list
+  for(country in countries)
+  {
+    sum_list[[country]] <- sum(df[df[,2,drop=TRUE]==country,
+                                  grep("[0-9]{1,2}/[0-9]{1,2}/[0-9]{1,2}",
+                                       colnames(df))])
+  }
+  
+  # Create new data frame with countries and sums
+  sums_df <- data.frame("Country"=countries, "Total"=unlist(sum_list))
+  
+  # Return df with only the top 5 countries
+  return(sums_df[order(sums_df$Total, decreasing=TRUE),][1:5,])
+}
 
+# Create tables for the top 5 countries for deaths and confirmations
+top_5_death <- top_5_country_sums(deaths_df)
+knitr::kable(top_5_death, caption = "Total Deaths by Country: Top 5 Countries",
+             row.names = FALSE)
+
+top_5_confirmations <- top_5_country_sums(confirmations_df)
+knitr::kable(top_5_confirmations,
+             caption = "Total Confirmations by Country: Top 5 Countries",
+             row.names = FALSE)
 ```
 
 ### GitHub Log
