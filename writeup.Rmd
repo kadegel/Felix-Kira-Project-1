@@ -6,21 +6,6 @@ output:
   pdf_document:
     toc: true
     toc_depth: 3
-header-includes:
-  - \usepackage{booktabs}
-  - \usepackage{longtable}
-  - \usepackage{array}
-  - \usepackage{multirow}
-  - \usepackage{wrapfig}
-  - \usepackage{float}
-  - \usepackage{colortbl}
-  - \usepackage{pdflscape}
-  - \usepackage{tabu}
-  - \usepackage{threeparttable}
-  - \usepackage{threeparttablex}
-  - \usepackage[normalem]{ulem}
-  - \usepackage{makecell}
-  - \usepackage{xcolor}
 ---
 ```{r setup, include = FALSE}
 
@@ -103,10 +88,7 @@ if(length(low_index) > 1)
 }
 
 # Find and display the area with the lowest risk score
-print(paste0("The area that currently has the lowest risk score is ",
-             confirmations_no_cruise[low_index,1,drop=TRUE], ", ",
-             confirmations_no_cruise[low_index,2,drop=TRUE], ", with a score of ",
-             round(current_risk_scores[low_index],2), "%."))
+cat("The area that currently has the lowest risk score is ", confirmations_no_cruise[low_index,1,drop=TRUE], ", ", confirmations_no_cruise[low_index,2,drop=TRUE], ", with a score of ", round(current_risk_scores[low_index],2), "%.", sep = "", fill = TRUE)
 
 # Find the index (which will refer to the row) of the highest risk score
 # If more than one are the same, show the one with more confirmations
@@ -117,9 +99,7 @@ if(length(high_index) > 1)
 }
 
 # Find and display the area with the highest risk score
-print(paste0("The area that currently has the highest risk score is ",
-             confirmations_no_cruise[high_index,2,drop=TRUE],
-             ", with a score of ", round(current_risk_scores[high_index],2), "%."))
+cat("The area that currently has the highest risk score is ", confirmations_no_cruise[high_index,2,drop=TRUE], ", with a score of ", round(current_risk_scores[high_index],2), "%.", sep = "", fill = TRUE)
 
 # Since the highest risk score is over 100%...
 # Find the highest risk score which is less than or equal to 100%
@@ -132,10 +112,7 @@ if(length(high_index_adjusted) > 1)
 }
 
 # Find and display the area with the highest risk score <=100
-print(paste0("The area that currently has the highest risk score is ",
-             confirmations_no_cruise[high_index_adjusted,2,drop=TRUE],
-             ", with a score of ",
-             round(current_risk_scores[high_index_adjusted],2), "%."))
+cat("The area that currently has the highest risk score is ", confirmations_no_cruise[high_index_adjusted,2,drop=TRUE], ", with a score of ", round(current_risk_scores[high_index_adjusted],2), "%.", sep = "", fill = TRUE)
 
 # Find global risk score
 global_risk <- risk_score(sum(current_deaths), sum(current_confirmations))
@@ -146,12 +123,7 @@ high_to_global <- global_risk - current_risk_scores[high_index]
 high_adj_to_global <- global_risk - current_risk_scores[high_index_adjusted]
 
 # Display comparisons of high, low, and global risk scores
-print(paste0("The global risk score is currently ", round(global_risk,2), "%. ",
-             "The area that currently has the lowest risk score has a score ",
-             "that is ", round(low_to_global,2), "% lower than the global ",
-             "risk score. The area that currently has the highest risk score ",
-             "(<= 100%) has a score that is ", abs(round(high_adj_to_global,2)),
-             "% higher than the global risk score."))
+cat("The global risk score is currently ", round(global_risk,2), "%. The area that currently has", "the lowest risk score has a score that is ", round(low_to_global,2), "% lower", "than the global risk score. The area that currently has", "the highest risk score (<= 100%) has a score that is ", abs(round(high_adj_to_global,2)), "% higher than the global risk score.", sep = "", fill = TRUE)
 ```
 #### Objective 4 Responses  
 - Calculating metrics like risk scores for different areas of the world can be helpful for many reasons. Knowing the COVID-19 risk score for a certain area of the world can help researchers determine where risk is highest and lowest, and where resources may be most effective and beneficial if they are deciding on distribution locations. Additionally, tracking risk scores over time for different areas of the world can provide information about trends in risk scores over the years and also during different times of the year and how that varies from location to location.
