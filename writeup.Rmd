@@ -73,13 +73,79 @@ print(origin_death)
 ```
 
 ### Objective 2
+
 ```{r ob2}
+# first confirmed COVID-19 across all regions**
+
+# Extract only the date columns (starting from the 5th column)
+date_columns <- colnames(confirmations_df)[5:ncol(confirmations_df)]
+
+# Initialize variables to track the most recent first case
+latest_first_case_date <- as.Date("2020-01-01", format="%Y-%m-%d")
+latest_region <- ""
+
+# Loop through each row to find the first confirmed case
+for (i in 1:nrow(confirmations_df)) {
+  region_name <- paste(confirmations_df$`Province/State`[i], confirmations_df$`Country/Region`[i], sep=", ")
+
+  # Find the first date where cases > 0
+  first_case_index <- which(confirmations_df[i, date_columns] > 0)[1]
+
+  if (!is.na(first_case_index)) {
+    first_case_date <- as.Date(date_columns[first_case_index], format="%m/%d/%y")
+
+    # Check if this is the most recent first case
+    if (first_case_date > latest_first_case_date) {
+      latest_first_case_date <- first_case_date
+      latest_region <- region_name
+    }
+  }
+}
+
+# Split latest_region into Province/State and Country/Region
+latest_parts <- unlist(strsplit(latest_region, ", "))
+province <- latest_parts[1]
+country <- latest_parts[2]
+
+# Create recent_confirm for use in Objective 3
+recent_confirm <- confirmations_df %>%
+  filter(`Province/State` == province, `Country/Region` == country)
+
+# Print the result
+print(paste("The most recent area to have its first confirmed case is:", latest_region, "on", latest_first_case_date))
+
+```
 
 ```
 
 ### Objective 3
 ```{r ob3}
+#calculates and prints the distance in miles between an origin location and the most recent confirmed case
 
+library(geosphere) # Load geosphere package
+
+# Extract coordinates for origin
+origin_location <- confirmations_df %>%
+  filter(`Province/State` == origin_confirm$`Province/State`, 
+         `Country/Region` == origin_confirm$`Country/Region`)
+
+origin_lat <- origin_location$Lat
+origin_long <- origin_location$Long
+
+# Extract coordinates for the most recent confirmed case
+recent_lat <- recent_confirm$Lat
+recent_long <- recent_confirm$Long
+
+# Compute distance in meters
+distance_meters <- distm(c(origin_long, origin_lat), c(recent_long, recent_lat))
+
+# Convert to miles
+distance_miles <- distance_meters * 0.000621371
+
+# Print formatted output
+print(paste(recent_confirm$`Province/State`, recent_confirm$`Country/Region`, 
+            "is", round(distance_miles, 2), "miles away from", 
+            origin_confirm$`Province/State`, origin_confirm$`Country/Region`))
 ```
 
 ### Objective 4
