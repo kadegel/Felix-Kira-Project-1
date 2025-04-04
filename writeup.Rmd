@@ -7,10 +7,13 @@ output:
     toc: true
     toc_depth: 3
 ---
+## GitHub Repo Link
+[Felix and Kira Project 1 GitHub Repo](https://github.com/kadegel/Felix-Kira-Project-1.git) 
+
 ```{r setup, include = FALSE}
 
 #### Load necessary packages ####
-packages <- c("knitr", "readr", "geosphere")
+packages <- c("knitr", "readr", "geosphere", "dplyr")
 
 install_me <- packages[!(packages %in% installed.packages()[, "Package"])]
 if (length(install_me)) install.packages(install_me)
@@ -18,6 +21,7 @@ if (length(install_me)) install.packages(install_me)
 library(knitr)
 library(readr)
 library(geosphere)
+library(dplyr)
 ```
 
 ## Background
@@ -62,22 +66,16 @@ origin_death_str <- paste(origin_death$`Province/State`, origin_death$`Country/R
 
 # Check if both values match using an if statement
 if (all(origin_confirm_str %in% origin_death_str)) {
-  print(paste("The origin of COVID-19 is:", origin_confirm_str))
+  cat("The origin of COVID-19 is:", origin_confirm_str, sep=" ")
 } else {
-  print("The origin is uncertain as the highest confirmations and deaths do not match exactly.")
+  cat("The origin is uncertain as the highest confirmations and deaths do not match exactly.")
 }
-
-# Print results
-print(origin_confirm)
-print(origin_death)
 
 ```
 
 ### Objective 2
 
 ```{r ob2}
-# first confirmed COVID-19 across all regions**
-
 # Extract only the date columns (starting from the 5th column)
 date_columns <- colnames(confirmations_df)[5:ncol(confirmations_df)]
 
@@ -87,7 +85,8 @@ latest_region <- ""
 
 # Loop through each row to find the first confirmed case
 for (i in 1:nrow(confirmations_df)) {
-  region_name <- paste(confirmations_df$`Province/State`[i], confirmations_df$`Country/Region`[i], sep=", ")
+  region_name <- paste(confirmations_df$`Province/State`[i],
+                       confirmations_df$`Country/Region`[i], sep=", ")
 
   # Find the first date where cases > 0
   first_case_index <- which(confirmations_df[i, date_columns] > 0)[1]
@@ -113,16 +112,15 @@ recent_confirm <- confirmations_df %>%
   filter(`Province/State` == province, `Country/Region` == country)
 
 # Print the result
-print(paste("The most recent area to have its first confirmed case is:", latest_region, "on", latest_first_case_date))
+cat("The most recent area to have its first confirmed case is: ",
+    latest_region, " on ", as.character(latest_first_case_date)
+    , ".", sep="", fill=TRUE)
 
 ```
 
-```
 
 ### Objective 3
 ```{r ob3}
-#calculates and prints the distance in miles between an origin location and the most recent confirmed case
-
 library(geosphere) # Load geosphere package
 
 # Extract coordinates for origin
@@ -144,9 +142,9 @@ distance_meters <- distm(c(origin_long, origin_lat), c(recent_long, recent_lat))
 distance_miles <- distance_meters * 0.000621371
 
 # Print formatted output
-print(paste(recent_confirm$`Province/State`, recent_confirm$`Country/Region`, 
-            "is", round(distance_miles, 2), "miles away from", 
-            origin_confirm$`Province/State`, origin_confirm$`Country/Region`))
+cat(recent_confirm$`Province/State`, recent_confirm$`Country/Region`, "is",
+    round(distance_miles, 2), "miles away from", origin_confirm$`Province/State`,
+    origin_confirm$`Country/Region`, sep=" ", fill=TRUE)
 ```
 
 ### Objective 4
@@ -184,7 +182,10 @@ if(length(low_index) > 1)
 }
 
 # Find and display the area with the lowest risk score
-cat("The area that currently has the lowest risk score is ", confirmations_no_cruise[low_index,1,drop=TRUE], ", ", confirmations_no_cruise[low_index,2,drop=TRUE], ", with a score of ", round(current_risk_scores[low_index],2), "%.", sep = "", fill = TRUE)
+cat("The area that currently has the lowest risk score is\n",
+    confirmations_no_cruise[low_index,1,drop=TRUE], ", ",
+    confirmations_no_cruise[low_index,2,drop=TRUE], ", with a score of ",
+    round(current_risk_scores[low_index],2), "%.", sep = "", fill = TRUE)
 
 # Find the index (which will refer to the row) of the highest risk score
 # If more than one are the same, show the one with more confirmations
@@ -195,7 +196,9 @@ if(length(high_index) > 1)
 }
 
 # Find and display the area with the highest risk score
-cat("The area that currently has the highest risk score is ", confirmations_no_cruise[high_index,2,drop=TRUE], ", with a score of ", round(current_risk_scores[high_index],2), "%.", sep = "", fill = TRUE)
+cat("The area that currently has the highest risk score is\n",
+    confirmations_no_cruise[high_index,2,drop=TRUE], ", with a score of ",
+    round(current_risk_scores[high_index],2), "%.", sep = "")
 
 # Since the highest risk score is over 100%...
 # Find the highest risk score which is less than or equal to 100%
@@ -208,7 +211,10 @@ if(length(high_index_adjusted) > 1)
 }
 
 # Find and display the area with the highest risk score <=100
-cat("The area that currently has the highest risk score is ", confirmations_no_cruise[high_index_adjusted,2,drop=TRUE], ", with a score of ", round(current_risk_scores[high_index_adjusted],2), "%.", sep = "", fill = TRUE)
+cat("The area that currently has the highest risk score is\n",
+    confirmations_no_cruise[high_index_adjusted,2,drop=TRUE],
+    ", with a score of ", round(current_risk_scores[high_index_adjusted],2),
+    "%.", sep = "")
 
 # Find global risk score
 global_risk <- risk_score(sum(current_deaths), sum(current_confirmations))
@@ -219,7 +225,13 @@ high_to_global <- global_risk - current_risk_scores[high_index]
 high_adj_to_global <- global_risk - current_risk_scores[high_index_adjusted]
 
 # Display comparisons of high, low, and global risk scores
-cat("The global risk score is currently ", round(global_risk,2), "%. The area that currently has", "the lowest risk score has a score that is ", round(low_to_global,2), "% lower", "than the global risk score. The area that currently has", "the highest risk score (<= 100%) has a score that is ", abs(round(high_adj_to_global,2)), "% higher than the global risk score.", sep = "", fill = TRUE)
+cat("The global risk score is currently ", round(global_risk,2),
+    "%. The area that currently has",
+    "the lowest risk score has a score that is ", round(low_to_global,2),
+    "% lower", "than the global risk score. The area that currently has",
+    "the highest risk score (<= 100%) has a score that is\n",
+    abs(round(high_adj_to_global,2)), "% higher than the global ",
+    "risk score.", sep = "", fill = TRUE)
 ```
 #### Objective 4 Responses  
 - Calculating metrics like risk scores for different areas of the world can be helpful for many reasons. Knowing the COVID-19 risk score for a certain area of the world can help researchers determine where risk is highest and lowest, and where resources may be most effective and beneficial if they are deciding on distribution locations. Additionally, tracking risk scores over time for different areas of the world can provide information about trends in risk scores over the years and also during different times of the year and how that varies from location to location.
@@ -263,7 +275,7 @@ knitr::kable(top_5_confirmations,
              row.names = FALSE)
 ```
 
-### GitHub Log
+## GitHub Log
 ```{bash gitlog} 
 git log --pretty=format:"%nSubject: %s%nAuthor: %aN%nDate: %aD%nBody: %b"
 ```
